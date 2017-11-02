@@ -7,6 +7,14 @@
 getEmitter.isStar = true;
 module.exports = getEmitter;
 
+function addEvent(event, subscriptions, student) {
+    if (subscriptions[event]) {
+        subscriptions[event].push(student);
+    } else {
+        subscriptions[event] = [student];
+    }
+}
+
 function applyEvent(student) {
     if (student.step !== student.every) {
         student.step ++;
@@ -38,23 +46,14 @@ function getEmitter() {
          * @returns {Object}
          */
         on: function (event, context, handler) {
-            if (this.subscriptions[event]) {
-                this.subscriptions[event].push({
-                    person: context,
-                    func: handler,
-                    step: 1,
-                    repeat: Infinity,
-                    every: 1
-                });
-            } else {
-                this.subscriptions[event] = [{
-                    person: context,
-                    func: handler,
-                    step: 1,
-                    repeat: Infinity,
-                    every: 1
-                }];
-            }
+            let person = {
+                person: context,
+                func: handler,
+                step: 1,
+                repeat: Infinity,
+                every: 1
+            };
+            addEvent(event, this.subscriptions, person);
 
             return this;
         },
@@ -120,22 +119,24 @@ function getEmitter() {
          * @returns {Object}
          */
         several: function (event, context, handler, times) {
-            if (this.subscriptions[event]) {
-                this.subscriptions[event].push({
+            if (times <= 0) {
+                let person = {
                     person: context,
                     func: handler,
                     step: 1,
-                    repeat: times,
+                    repeat: Infinity,
                     every: 1
-                });
+                };
+                addEvent(event, this.subscriptions, person);
             } else {
-                this.subscriptions[event] = [{
+                let person = {
                     person: context,
                     func: handler,
                     step: 1,
                     repeat: times,
                     every: 1
-                }];
+                };
+                addEvent(event, this.subscriptions, person);
             }
 
             return this;
@@ -151,22 +152,24 @@ function getEmitter() {
          * @returns {Object}
          */
         through: function (event, context, handler, frequency) {
-            if (this.subscriptions[event]) {
-                this.subscriptions[event].push({
+            if (frequency <= 0) {
+                let person = {
                     person: context,
                     func: handler,
                     step: 1,
-                    repeat: 0,
-                    every: frequency
-                });
+                    repeat: Infinity,
+                    every: 1
+                };
+                addEvent(event, this.subscriptions, person);
             } else {
-                this.subscriptions[event] = [{
+                let person = {
                     person: context,
                     func: handler,
                     step: frequency,
                     repeat: Infinity,
                     every: frequency
-                }];
+                };
+                addEvent(event, this.subscriptions, person);
             }
 
             return this;
