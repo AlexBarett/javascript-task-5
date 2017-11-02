@@ -58,18 +58,25 @@ function getEmitter() {
          * @returns {Object}
          */
         emit: function (event) {
-            if (this.subscriptions[event]) {
-                this.subscriptions[event].forEach(function (element) {
-                    element.func.call(element.person);
-                });
-            }
-            if (event.includes('.')) {
-                if (this.subscriptions[event.split('.')[0]]) {
-                    this.subscriptions[event.split('.')[0]].forEach(function (element) {
-                        element.func.call(element.person);
+            var newSubscriptions = this.subscriptions;
+            var allCurrentEvents = event.split('.').reduce(function (events, element) {
+                if (events.length === 0) {
+                    events.push(element);
+
+                    return events;
+                }
+                events.push(events[events.length - 1] + '.' + element);
+
+                return events;
+            }, [])
+                .reverse();
+            allCurrentEvents.forEach(function (currentEvent) {
+                if (newSubscriptions[currentEvent]) {
+                    newSubscriptions[currentEvent].forEach(function (student) {
+                        student.func.call(student.person);
                     });
                 }
-            }
+            });
 
             return this;
         },
