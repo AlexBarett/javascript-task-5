@@ -4,8 +4,23 @@
  * Сделано задание на звездочку
  * Реализованы методы several и through
  */
-getEmitter.isStar = false;
+getEmitter.isStar = true;
 module.exports = getEmitter;
+
+function applyEvent(student) {
+    if (student.step !== student.every) {
+        student.step ++;
+
+        return student;
+    }
+    if (student.repeat !== 0) {
+        student.func.call(student.person);
+        student.repeat --;
+        student.step = 1;
+    }
+
+    return student;
+}
 
 /**
  * Возвращает новый emitter
@@ -24,9 +39,21 @@ function getEmitter() {
          */
         on: function (event, context, handler) {
             if (this.subscriptions[event]) {
-                this.subscriptions[event].push({ person: context, func: handler });
+                this.subscriptions[event].push({
+                    person: context,
+                    func: handler,
+                    step: 1,
+                    repeat: Infinity,
+                    every: 1
+                });
             } else {
-                this.subscriptions[event] = [{ person: context, func: handler }];
+                this.subscriptions[event] = [{
+                    person: context,
+                    func: handler,
+                    step: 1,
+                    repeat: Infinity,
+                    every: 1
+                }];
             }
 
             return this;
@@ -72,8 +99,10 @@ function getEmitter() {
                 .reverse();
             allCurrentEvents.forEach(function (currentEvent) {
                 if (newSubscriptions[currentEvent]) {
-                    newSubscriptions[currentEvent].forEach(function (student) {
-                        student.func.call(student.person);
+                    newSubscriptions[currentEvent].map(function (student) {
+                        student = applyEvent(student);
+
+                        return student;
                     });
                 }
             });
@@ -88,9 +117,28 @@ function getEmitter() {
          * @param {Object} context
          * @param {Function} handler
          * @param {Number} times – сколько раз получить уведомление
+         * @returns {Object}
          */
         several: function (event, context, handler, times) {
-            console.info(event, context, handler, times);
+            if (this.subscriptions[event]) {
+                this.subscriptions[event].push({
+                    person: context,
+                    func: handler,
+                    step: 1,
+                    repeat: times,
+                    every: 1
+                });
+            } else {
+                this.subscriptions[event] = [{
+                    person: context,
+                    func: handler,
+                    step: 1,
+                    repeat: times,
+                    every: 1
+                }];
+            }
+
+            return this;
         },
 
         /**
@@ -100,9 +148,28 @@ function getEmitter() {
          * @param {Object} context
          * @param {Function} handler
          * @param {Number} frequency – как часто уведомлять
+         * @returns {Object}
          */
         through: function (event, context, handler, frequency) {
-            console.info(event, context, handler, frequency);
+            if (this.subscriptions[event]) {
+                this.subscriptions[event].push({
+                    person: context,
+                    func: handler,
+                    step: 1,
+                    repeat: 0,
+                    every: frequency
+                });
+            } else {
+                this.subscriptions[event] = [{
+                    person: context,
+                    func: handler,
+                    step: frequency,
+                    repeat: Infinity,
+                    every: frequency
+                }];
+            }
+
+            return this;
         }
     };
 }
