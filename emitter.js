@@ -119,25 +119,17 @@ function getEmitter() {
          * @returns {Object}
          */
         several: function (event, context, handler, times) {
+            let person = {
+                person: context,
+                func: handler,
+                step: 1,
+                repeat: times,
+                every: 1
+            };
             if (times <= 0) {
-                let person = {
-                    person: context,
-                    func: handler,
-                    step: 1,
-                    repeat: Infinity,
-                    every: 1
-                };
-                addEvent(event, this.subscriptions, person);
-            } else {
-                let person = {
-                    person: context,
-                    func: handler,
-                    step: 1,
-                    repeat: times,
-                    every: 1
-                };
-                addEvent(event, this.subscriptions, person);
+                person.repeat = Infinity;
             }
+            addEvent(event, this.subscriptions, person);
 
             return this;
         },
@@ -152,25 +144,17 @@ function getEmitter() {
          * @returns {Object}
          */
         through: function (event, context, handler, frequency) {
+            let person = {
+                person: context,
+                func: handler,
+                step: frequency,
+                repeat: Infinity,
+                every: frequency
+            };
             if (frequency <= 0) {
-                let person = {
-                    person: context,
-                    func: handler,
-                    step: 1,
-                    repeat: Infinity,
-                    every: 1
-                };
-                addEvent(event, this.subscriptions, person);
-            } else {
-                let person = {
-                    person: context,
-                    func: handler,
-                    step: frequency,
-                    repeat: Infinity,
-                    every: frequency
-                };
-                addEvent(event, this.subscriptions, person);
+                person.every = 1;
             }
+            addEvent(event, this.subscriptions, person);
 
             return this;
         }
